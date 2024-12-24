@@ -1,4 +1,11 @@
 const mongoose = require('mongoose');
+const connect = mongoose.connect(process.env.CONNECTION_STRING, {});
+
+connect.then(() => {
+  console.log("Database connected sucessfully.");
+}).catch(()=> {
+  console.log("Database not connected.")
+});
 
 // User Schema
 const userSchema = new mongoose.Schema({
@@ -6,18 +13,18 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId, 
     default: new mongoose.Types.ObjectId() 
 },
-  name: { 
+  username: { 
     type: String, 
     required: true 
 },
-  phoneNumber: { 
-    type: String, 
-    required: true 
-},
-  email_id: { 
-    type: String, 
-    required: true, unique: true 
-},
+//   phoneNumber: { 
+//     type: String, 
+//     required: true 
+// },
+//   email_id: { 
+//     type: String, 
+//     required: true, unique: true 
+// },
   isVendor: { 
     type: Boolean, 
     default: false 
@@ -26,10 +33,10 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'User', default: null 
 },
-  location: { 
-    type: String, 
-    required: true 
-},
+//   location: { 
+//     type: String, 
+//     required: true 
+// },
   itemsOnSale: [{ 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Product' 
@@ -106,8 +113,8 @@ const categorySchema = new mongoose.Schema({
 });
 
 // Exporting models
-const User = mongoose.model('User', userSchema);
-const Product = mongoose.model('Product', productSchema);
-const Category = mongoose.model('Category', categorySchema);
+const USER = mongoose.model('User', userSchema);
+const PRODUCT = mongoose.model('Product', productSchema);
+const CATEGORY = mongoose.model('Category', categorySchema);
 
-module.exports = { User, Product, Category };
+module.exports = { USER, PRODUCT, CATEGORY };

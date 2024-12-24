@@ -4,6 +4,9 @@ const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 
+//Importing Modules
+const { USER, PRODUCT, CATEGORY } = require("./config")
+
 // Initializations / Global Variables
 const app = express();
 app.use(bodyParser.json());
@@ -36,20 +39,19 @@ const authenticateJWTuser = (req, res, next) => {
 // -------------------------ROUTES--------------------------------
 // ---------------------------------------------------------------
 
-USERS = [];
-
 // For user to signup
 // app.get('/user_signup', (req, res) => {
 // });
 
-app.post('/user_signup', (req, res) => {
-    const user = req.body;
-    const existingUser = USERS.some(a => a.username == user.username);
+app.post('/user_signup', async (req, res) => {
+    const { username, password } = req.body;
+    const existingUser = await USER.findOne({username});
     if (existingUser){
         res.status(403).send("User already exists.")
     }
-    USERS.push(user);
-    const token = generateJWTusertoken(user)
+    const newUser = new USER({username, password});
+    await newUser.save();
+    const token = generateJWTusertoken(username);
     res.json({message: 'User created.', token})
 });
 
