@@ -25,11 +25,11 @@ const authenticateJWTuser = (req, res, next) => {
     const authHeader = req.headers.authorization
     if (authHeader){
         const token = authHeader.split(' ')[1]
-        jwt.verify(token, userSecretKey, (err, user) => {
+        jwt.verify(token, userSecretKey, (err, data) => {
             if (err){
                 return res.sendStatus(403);
             }
-            req.user = user;
+            req.user = data;
             next();
         });
     }else {
@@ -70,15 +70,26 @@ app.post('/user_login', async (req, res) =>{
         return res.status(403).send("Wrong Username or Password");
     };
     const token = generateJWTusertoken({username});
-    return res.status(200).send({message: 'User signed in successfully', token});
+    return res.status(200).send({message: 'User logged in successfully', token});
 });
 
 // For vendor to register
 // app.get('/vendor_signup', (req, res) =>{
 // });
-app.post('/vendor_signup',authenticateJWTuser, (req, res) =>{
-    const user = req.user;
-    res.json(user);
+app.post('/vendor_signup',authenticateJWTuser, async (req, res) =>{
+    try{
+        const local_user = req.user.username;
+        const global_user = await USER.findOneAndUpdate({username: local_user}, {isVendor: true}, {new: true});
+        
+        if (!global_user) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        return res.status(200).send('You are now a vendor.');
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error.', error });
+    }
 });
 
 // home page
