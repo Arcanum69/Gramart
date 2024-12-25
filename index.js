@@ -2,6 +2,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 require('dotenv').config();
 
 //Importing Modules
@@ -9,6 +10,7 @@ const { USER, PRODUCT, CATEGORY } = require("./config")
 
 // Initializations / Global Variables
 const app = express();
+app.use(cors());
 app.use(bodyParser.json());
 const port = 3000;
 
@@ -91,6 +93,20 @@ app.post('/vendor_signup',authenticateJWTuser, async (req, res) =>{
         return res.status(500).json({ message: 'Internal server error.', error });
     }
 });
+
+// Route to show all users
+app.get('/allusers', async (req, res) => {
+    try {
+        const allUsers = await USER.find();
+          
+        // console.log("All Users:", allUsers);
+        res.status(200).json(allUsers);  
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        res.status(500).json({ message: 'Internal server error.' });
+    }
+});
+
 
 // home page
 app.get('/home', (req, res) =>{
