@@ -15,7 +15,7 @@ const port = 3000;
 const userSecretKey = process.env.USER_SECRET_KEY;
 
 // Authentication Middleware / Functions
-const generateJWTusertoken = user => {
+const generateJWTusertoken = (user) => {
     const payload = {username: user.username};
     return jwt.sign(payload, userSecretKey, {expiresIn: '1h'});
 };
@@ -32,7 +32,8 @@ const authenticateJWTuser = (req, res, next) => {
             req.user = user;
             next();
         });
-    };
+    }else {
+        return res.status(401).json({ message: 'Authorization header missing.' }); }
 };
 
 // ---------------------------------------------------------------
@@ -51,7 +52,7 @@ app.post('/user_signup', async (req, res) => {
     }
     const newUser = new USER({username, password});
     await newUser.save();
-    const token = generateJWTusertoken(username);
+    const token = generateJWTusertoken({username});
     return res.json({message: 'User created.', token})
 });
 
@@ -68,16 +69,16 @@ app.post('/user_login', async (req, res) =>{
     else if (!credentialsCheck) {
         return res.status(403).send("Wrong Username or Password");
     };
-    const token = generateJWTusertoken(username);
+    const token = generateJWTusertoken({username});
     return res.status(200).send({message: 'User signed in successfully', token});
 });
 
-// For seller to register
-app.get('/seller_signup', (req, res) =>{
-
-});
-app.post('/seller_signup', (req, res) =>{
-
+// For vendor to register
+// app.get('/vendor_signup', (req, res) =>{
+// });
+app.post('/vendor_signup',authenticateJWTuser, (req, res) =>{
+    const user = req.user;
+    res.json(user);
 });
 
 // home page
