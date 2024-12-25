@@ -47,29 +47,29 @@ app.post('/user_signup', async (req, res) => {
     const { username, password } = req.body;
     const existingUser = await USER.findOne({username});
     if (existingUser){
-        res.status(403).send("User already exists.")
+        return res.status(403).send("User already exists.");
     }
     const newUser = new USER({username, password});
     await newUser.save();
     const token = generateJWTusertoken(username);
-    res.json({message: 'User created.', token})
+    return res.json({message: 'User created.', token})
 });
 
 // For user to login
 // app.get('/user_login', (req, res) =>{
 // });
-app.post('/user_login', (req, res) =>{
+app.post('/user_login', async (req, res) =>{
     const { username , password } = req.headers;
-    const existingUser = USERS.some(a => a.username == username);
-    const passwordCheck = USERS.some(a => a.password == password);
+    const existingUser = await USER.findOne({username});
+    const credentialsCheck = await USER.findOne({username, password});
     if (!existingUser){
-        res.status(404).send("User Does not exist");
+        return res.status(404).send("User does not exist");
     }
-    if (!passwordCheck){
-        res.status(403).send("Wrong Password");
-    }
+    else if (!credentialsCheck) {
+        return res.status(403).send("Wrong Username or Password");
+    };
     const token = generateJWTusertoken(username);
-    res.status(200).send({message: 'User signed in successfully', token});
+    return res.status(200).send({message: 'User signed in successfully', token});
 });
 
 // For seller to register

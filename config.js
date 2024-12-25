@@ -15,7 +15,11 @@ const userSchema = new mongoose.Schema({
 },
   username: { 
     type: String, 
-    required: true 
+    required: true, unique: true
+},
+  password: {
+    type: String,
+    required: true
 },
 //   phoneNumber: { 
 //     type: String, 
@@ -33,6 +37,10 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'User', default: null 
 },
+isVerified: { 
+  type: Boolean, 
+  default: false 
+},
 //   location: { 
 //     type: String, 
 //     required: true 
@@ -41,10 +49,6 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Product' 
 }],
-  isVerified: { 
-    type: Boolean, 
-    default: false 
-},
 });
 
 // Product Details Schema
