@@ -78,16 +78,37 @@ app.post('/user_login', async (req, res) =>{
 // For vendor to register
 // app.get('/vendor_signup', (req, res) =>{
 // });
-app.post('/vendor_signup',authenticateJWTuser, async (req, res) =>{
-    try{
+app.post('/vendor_signup', authenticateJWTuser, async (req, res) => {
+    try {
         const local_user = req.user.username;
-        const global_user = await USER.findOneAndUpdate({username: local_user}, {isVendor: true}, {new: true});
-        
-        if (!global_user) {
+
+        // Check if the user already exists and is a vendor
+        const existing_user = await USER.findOne({ username: local_user });
+        if (!existing_user) {
             return res.status(404).json({ message: 'User not found.' });
         }
+        if (existing_user.isVendor) {
+            return res.status(400).json({ message: 'User is already a vendor.' });
+        }
 
-        return res.status(200).send('You are now a vendor.');
+        // Get the max vendor_id from existing vendors
+        const maxVendor = await USER.findOne({ isVendor: true })
+            .sort({ vendor_id: -1 })
+            .select('vendor_id');
+
+        const nextVendorId = maxVendor ? maxVendor.vendor_id + 1 : 1;
+
+        // Update the user to become a vendor and assign vendor_id
+        const global_user = await USER.findOneAndUpdate(
+            { username: local_user },
+            { isVendor: true, vendor_id: nextVendorId },
+            { new: true }
+        );
+
+        return res.status(200).json({
+            message: 'You are now a vendor.',
+            vendor_id: nextVendorId,
+        });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Internal server error.', error });
