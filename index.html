@@ -16,8 +16,12 @@
             .then((result)=>{
                 result.json().then((data)=>{
                     const userdata = data;
+                    const MainArea = document.getElementById("allUsers");
+                    MainArea.innerHTML = `
+                        <h2>All the Users at Gramart</h2>
+                        <button onclick="showUsers()">Show Users</button>
+                    `;
                     for (var i=0; i<data.length; i++){
-                        var MainArea = document.getElementById("allUsers");
 
                         var ChildElement = document.createElement("div");
                         ChildElement.classList.add("specificUser");
