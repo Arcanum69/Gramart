@@ -4,10 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <title>Gramart Home Page</title>
-</head>
-<body>
+    <title>E-commerce Layout</title>
     <script>
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const searchBox = document.querySelector('.search-box');
+            sidebar.classList.toggle('collapsed');
+            searchBox.classList.toggle('collapsed');
+        }
+    
         const checkAuthentication = async () => {
         var token = localStorage.getItem('userToken');
         if (!token) {
@@ -19,7 +24,7 @@
             method: "GET",
             headers: { 
                 "authorization": `Bearer ${token}`
-             },
+                },
         });
 
         if (response.status == 200) {
@@ -34,9 +39,45 @@
 
         window.onload = checkAuthentication;
     </script>
-    <div id="allUsers" class="allUsers">
-        <h2>All the Users at Gramart</h2>
+</head>
+<body>
+    <div class="sidebar">
+        <a href="#" onclick="toggleSidebar()">
+            <i class="icon">☰</i> <span>Collapse</span>
+        </a>
+        <a href="#">
+            <i class="icon">🏠</i> <span>Home</span>
+        </a>
+        <a href="#">
+            <i class="icon">📦</i> <span>Products</span>
+        </a>
+        <a href="#">
+            <i class="icon">⚙</i> <span>Scrap</span>
+        </a>
+        <a href="#">
+            <i class="icon">📚</i> <span>Donate Books</span>
+        </a>
     </div>
-    <div id="name"></div>
+
+    <div class="main-content">
+        <header>
+            <div class="logo">GM</div>
+            <div class="search-box">
+                <input type="text" placeholder="Search...">
+            </div>
+            <div class="buttons">
+                <div class="language">L</div>
+                <div class="location">Location</div>
+                <button>Login</button>
+                <button>Signup</button>
+            </div>
+        </header>
+    </div>
+    <section class="midsection">
+        <div class="card">
+            <div id="name"></div>
+            <p>This is the midsection card. Populate this with categories, products, etc.</p>
+        </div>
+    </section>
 </body>
 </html>
