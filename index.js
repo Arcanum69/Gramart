@@ -46,8 +46,10 @@ const authenticateJWTuser = (req, res, next) => {
 // app.get('/user_signup', (req, res) => {
 // });
 
+// Additions: to check if email also exists, check username unique and email unique seperately. Also update front-end likewise.
 app.post('/user_signup', async (req, res) => {
     const { username, password } = req.body;
+    console.log(username, password);
     const existingUser = await USER.findOne({username});
     if (existingUser){
         return res.status(403).send("User already exists.");
@@ -81,8 +83,6 @@ app.post('/user_login', async (req, res) =>{
 app.post('/vendor_signup', authenticateJWTuser, async (req, res) => {
     try {
         const local_user = req.user.username;
-
-        // Check if the user already exists and is a vendor
         const existing_user = await USER.findOne({ username: local_user });
         if (!existing_user) {
             return res.status(404).json({ message: 'User not found.' });
@@ -91,14 +91,11 @@ app.post('/vendor_signup', authenticateJWTuser, async (req, res) => {
             return res.status(400).json({ message: 'User is already a vendor.' });
         }
 
-        // Get the max vendor_id from existing vendors
         const maxVendor = await USER.findOne({ isVendor: true })
             .sort({ vendor_id: -1 })
             .select('vendor_id');
-
         const nextVendorId = maxVendor ? maxVendor.vendor_id + 1 : 1;
 
-        // Update the user to become a vendor and assign vendor_id
         const global_user = await USER.findOneAndUpdate(
             { username: local_user },
             { isVendor: true, vendor_id: nextVendorId },
@@ -119,8 +116,6 @@ app.post('/vendor_signup', authenticateJWTuser, async (req, res) => {
 app.get('/allusers', async (req, res) => {
     try {
         const allUsers = await USER.find();
-          
-        // console.log("All Users:", allUsers);
         res.status(200).json(allUsers);  
     } catch (error) {
         console.error("Error fetching users:", error);

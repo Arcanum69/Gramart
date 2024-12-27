@@ -4,86 +4,49 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Signup Page</title>
+  <link rel="stylesheet" href="logsign.css">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
 
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    .signup-container {
-      background-color: white;
-      border: 2px solid black;
-      width: 300px;
-      padding: 20px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .signup-container h2 {
-      text-align: center;
-      margin-bottom: 20px;
-      font-size: 1.5em;
-      text-transform: uppercase;
-    }
-
-    .signup-container input {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
-      border: 1px solid black;
-      border-radius: 3px;
-    }
-
-    .signup-container button {
-      width: 100%;
-      padding: 10px;
-      background-color: black;
-      color: white;
-      border: none;
-      cursor: pointer;
-      text-transform: uppercase;
-      font-weight: bold;
-      border-radius: 3px;
-    }
-
-    .signup-container button:hover {
-      background-color: gray;
-    }
-
-    .signup-container .login-link {
-      display: block;
-      margin-top: 10px;
-      text-align: center;
-      font-size: 0.9em;
-      text-decoration: none;
-      color: black;
-    }
-
-    .signup-container .login-link:hover {
-      color: blue;
-      text-decoration: underline;
-    }
   </style>
 </head>
 <body>
+
+  <script>
+    async function signupbutton(event){
+      event.preventDefault();
+      var local_username = document.getElementById("username").value;
+      var local_password = document.getElementById("password").value;
+      
+      fetch ("http://localhost:3000/user_signup", {
+        method: "POST",
+        body: JSON.stringify({
+          username: local_username,
+          password: local_password
+        }),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }).then((result) => {
+          if (result.status == 403){
+            return alert("User already exists")
+          }
+          const resp = result.json()
+          resp.then((data) => {
+              window.location.href = "index.html";
+            })
+        });
+    };
+  </script>
+
   <div class="signup-container">
     <h2>Sign Up</h2>
     <form>
-      <input type="text" placeholder="Username" required>
-      <input type="password" placeholder="Password" required>
-      <input type="email" placeholder="Email" required>
-      <button type="submit">Sign In</button>
+      <input type="text" placeholder="Username" required id="username">
+      <input type="password" placeholder="Password" required id="password">
+      <input type="email" placeholder="Email" id="email">
+      <button type="submit" onclick="signupbutton(event)">Sign In</button>
     </form>
-    <a href="login.html" class="login-link">Trying to Log in?</a>
+    <a href="login_page.html" class="login-link" >Trying to Log in?</a>
   </div>
 </body>
 </html>
