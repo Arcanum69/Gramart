@@ -25,11 +25,19 @@
     }).then((result) => {
       if (result.status == 404){
         return alert("User does not exist");
-      }else if(result.status == 403){
+      }
+      else if(result.status == 403){
         return alert("Wrong Username or Password");
-      }else if(result.status == 200){
+      }
+      else if(result.status == 200){
         result.json().then((data)=>{
-          window.location.href = "index.html";
+          if (data.token) {
+            localStorage.removeItem("userToken");
+            localStorage.setItem('userToken', data.token);
+            window.location.href = 'index.html';
+          } else {
+            alert('Login failed');
+          }
         })
       }
     })

@@ -12,30 +12,34 @@
 <body>
 
   <script>
-    async function signupbutton(event){
-      event.preventDefault();
-      var local_username = document.getElementById("username").value;
-      var local_password = document.getElementById("password").value;
-      
-      fetch ("http://localhost:3000/user_signup", {
-        method: "POST",
-        body: JSON.stringify({
-          username: local_username,
-          password: local_password
-        }),
-        headers: {
-          "Content-Type": "application/json"
+    async function signupbutton(event) {
+        event.preventDefault();
+
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        try {
+            const response = await fetch("http://localhost:3000/user_signup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password }),
+            });
+
+            const data = await response.json();
+
+            if (response.status === 403) {
+                alert("User already exists.");
+            } else if (response.status === 200) {
+                // Save token to localStorage
+                localStorage.setItem("userToken", data.token);
+                window.location.href = "index.html";
+            } else {
+                console.error("Unexpected response:", data);
+            }
+        } catch (error) {
+            console.error("Error during signup:", error);
         }
-      }).then((result) => {
-          if (result.status == 403){
-            return alert("User already exists")
-          }
-          const resp = result.json()
-          resp.then((data) => {
-              window.location.href = "index.html";
-            })
-        });
-    };
+    }
   </script>
 
   <div class="signup-container">

@@ -8,48 +8,35 @@
 </head>
 <body>
     <script>
+        const checkAuthentication = async () => {
+        var token = localStorage.getItem('userToken');
+        if (!token) {
+            window.location.href = '/login_page.html';
+            return;
+        }
 
-        async function showUsers(){
-            fetch("http://localhost:3000/allusers", {
-                method: "GET",
-            })
-            .then((result)=>{
-                result.json().then((data)=>{
-                    const userdata = data;
-                    const MainArea = document.getElementById("allUsers");
-                    MainArea.innerHTML = `
-                        <h2>All the Users at Gramart</h2>
-                        <button onclick="showUsers()">Show Users</button>
-                    `;
-                    for (var i=0; i<data.length; i++){
+        const response = await fetch('http://localhost:3000/user', {
+            method: "GET",
+            headers: { 
+                "authorization": `Bearer ${token}`
+             },
+        });
 
-                        var ChildElement = document.createElement("div");
-                        ChildElement.classList.add("specificUser");
-
-
-                        var GrandChild_Name = document.createElement("div");
-                        GrandChild_Name.innerHTML = "<b>Name:</b> " + data[i].username;
-
-                        var GrandChild_isVendor = document.createElement("div");
-                        GrandChild_isVendor.innerHTML = "<b>Vendor status:</b> " + data[i].isVendor;
-
-                        var GrandChild_Password = document.createElement("div");
-                        GrandChild_Password.innerHTML = "<b>Password:</b> " + data[i].password;
-                        
-                        
-                        ChildElement.appendChild(GrandChild_Name);
-                        ChildElement.appendChild(GrandChild_Password);
-                        ChildElement.appendChild(GrandChild_isVendor);
-                        MainArea.appendChild(ChildElement);
-                    }
-
-                })
-            });
+        if (response.status == 200) {
+            const userData = await response.json();
+            document.getElementById('name').textContent = `Welcome, ${userData.username}, your token is: ${token}`;
+        } else {
+            console.error("Error verifying token:", error);
+            localStorage.removeItem("userToken");
+            window.location.href = "/login_page.html";
+        }
         };
+
+        window.onload = checkAuthentication;
     </script>
     <div id="allUsers" class="allUsers">
         <h2>All the Users at Gramart</h2>
-        <button onclick="showUsers()">Show Users</button>
     </div>
+    <div id="name"></div>
 </body>
 </html>

@@ -18,7 +18,11 @@ const userSecretKey = process.env.USER_SECRET_KEY;
 
 // Authentication Middleware / Functions
 const generateJWTusertoken = (user) => {
-    const payload = {username: user.username};
+    const payload = {
+        username: user.username,
+        iat: Math.floor(Date.now() / 1000)
+    };
+    console.log(user.username);
     return jwt.sign(payload, userSecretKey, {expiresIn: '1h'});
 };
 
@@ -49,15 +53,14 @@ const authenticateJWTuser = (req, res, next) => {
 // Additions: to check if email also exists, check username unique and email unique seperately. Also update front-end likewise.
 app.post('/user_signup', async (req, res) => {
     const { username, password } = req.body;
-    console.log(username, password);
     const existingUser = await USER.findOne({username});
     if (existingUser){
-        return res.status(403).send("User already exists.");
+        return res.status(403).json({ message: 'User already exists.' });
     }
     const newUser = new USER({username, password});
     await newUser.save();
     const token = generateJWTusertoken({username});
-    return res.json({message: 'User created.', token})
+    return res.status(200).json({message: 'User created.', token});
 });
 
 // For user to login
@@ -112,13 +115,17 @@ app.post('/vendor_signup', authenticateJWTuser, async (req, res) => {
     }
 });
 
-// Route to show all users
-app.get('/allusers', async (req, res) => {
+// Route to show user details
+app.get('/user', authenticateJWTuser, async (req, res) => {
     try {
-        const allUsers = await USER.find();
-        res.status(200).json(allUsers);  
+        const username = req.user.username;
+        const userDetails = await USER.findOne({username});
+        if (!username){
+            return res.status(404).send("User not Found");
+        }
+        res.status(200).json(userDetails);  
     } catch (error) {
-        console.error("Error fetching users:", error);
+        console.error("Error fetching user", error);
         res.status(500).json({ message: 'Internal server error.' });
     }
 });
