@@ -22,7 +22,6 @@ const generateJWTusertoken = (user) => {
         username: user.username,
         iat: Math.floor(Date.now() / 1000)
     };
-    console.log(user.username);
     return jwt.sign(payload, userSecretKey, {expiresIn: '1h'});
 };
 
